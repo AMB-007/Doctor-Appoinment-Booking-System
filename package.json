@@ -1,0 +1,13 @@
+{
+  "name": "doctor-app",
+  "version": "1.0.0",
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=client",
+    "server": "npm start --workspace=server",
+    "build": "npm run build --workspace=client"
+  }
+}

@@ -1,0 +1,109 @@
+/* =========================================
+   1. Theme Variables
+   ========================================= */
+:root {
+    /* Uses Indigo/Navy theme for professionalism */
+    --primary-color: #4f46e5;       
+    --primary-dark: #4338ca;
+    --text-dark: #1f2937;           
+    --bg-page: #f9fafb;             
+    --error-color: #dc2626;         
+}
+
+/* =========================================
+   2. Layout & Card Styling
+   ========================================= */
+.login-page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-page);
+    padding: 2rem;
+    font-family: 'Plus Jakarta Sans', sans-serif, sans-serif; 
+}
+
+.login-card-container {
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    border-radius: 16px; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+    padding: 3rem 2.5rem;
+    border: 1px solid #f3f4f6;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Header Icon */
+.login-brand-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+
+/* =========================================
+   3. Input and Button Styling
+   ========================================= */
+
+.input-field-style {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #d1d5db; 
+    border-radius: 8px;
+    color: var(--text-dark);
+    transition: all 0.2s ease-in-out;
+    font-size: 1rem;
+}
+
+.input-field-style::placeholder {
+    color: #9ca3af; 
+}
+
+.input-field-style:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2); 
+}
+
+.btn-primary-login {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    padding: 0.85rem 1.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s, transform 0.2s;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+}
+
+.btn-primary-login:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-primary-login:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Error Styling */
+.error-message-box {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: #fef2f2; 
+    color: var(--error-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid #fee2e2;
+}

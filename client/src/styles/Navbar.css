@@ -1,0 +1,231 @@
+/* =========================================
+   1. Theme Variables & Base
+   ========================================= */
+:root {
+    --navbar-height: 80px; 
+    --primary-color: #1e3a8a; /* Deep Navy Blue */
+    --primary-hover: #1a3279;
+    --primary-light: #eff6ff; /* Very Light Blue */
+    --text-dark: #1f2937;
+    --text-light: #4b5563;
+    --bg-light: #ffffff;
+    --border-color: #ffffff;
+}
+
+/* Base Navbar Styling */
+.main-navbar {
+    width: 100%;
+    height: var(--navbar-height);
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 50; 
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+}
+
+.nav-container { /* Corresponds to nav-content in original */
+    max-width: 1400px; 
+    height: 100%;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* =========================================
+   2. Brand (Logo)
+   ========================================= */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    font-size: 1.6rem; /* Slightly larger brand text */
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+.brand-icon {
+    font-size: 2rem;
+    margin-right: 0.5rem;
+    color: var(--primary-color);
+}
+
+/* =========================================
+   3. Links and Guest Actions
+   ========================================= */
+.nav-actions {
+    display: flex;
+    align-items: center;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-light);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--text-dark);
+    background-color: #ffffff;
+}
+
+.nav-link.active {
+    color: var(--primary-color);
+    background-color: #eff6ff;
+    font-weight: 700;
+}
+
+/* Guest Menu (Login/Signup) */
+.guest-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem; /* Wider gap for minimalist look */
+}
+
+/* Primary Button (Matching Home CTA) */
+.btn-primary-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 700;
+    
+    background-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 10px rgba(30, 58, 138, 0.3);
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary-nav:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 15px rgba(30, 58, 138, 0.4);
+}
+
+
+/* =========================================
+   4. Logged In User Menu
+   ========================================= */
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.user-info-group {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.user-divider {
+    width: 1px;
+    height: 28px;
+    background-color: var(--border-color);
+}
+
+.user-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+}
+
+.user-badge:hover {
+    background-color: #f9fafb;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.user-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.user-role {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    text-transform: uppercase; /* Match the style of the Home page badge */
+    letter-spacing: 0.5px;
+}
+
+.btn-logout {
+    background: none;
+    border: none;
+    color: #dc2626; /* Red 600 */
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.btn-logout:hover {
+    background-color:#eff6ff;
+}
+
+
+/* =========================================
+   5. Responsiveness
+   ========================================= */
+
+@media (max-width: 900px) {
+    .nav-link {
+        /* Hide regular nav links on small tablets */
+        display: none; 
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-container {
+        padding: 0 1rem;
+    }
+    
+    /* Hide names/roles on mobile */
+    .user-details {
+        display: none; 
+    }
+    
+    .user-info-group {
+        gap: 0.75rem;
+    }
+    
+    .user-divider {
+        display: none;
+    }
+    
+    .user-badge {
+        padding: 0;
+    }
+}

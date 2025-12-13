@@ -1,0 +1,448 @@
+/* =========================================
+   1. Theme Variables
+   ========================================= */
+:root {
+    --primary-color: #1e3a8a;       /* Deep Navy Blue */
+    --primary-hover: #1e40af; 
+    --primary-light: #eff6ff; 
+    --color-success: #059669;       /* Green for available slots */
+    --color-error: #dc2626;         /* Red for leave days */
+    --text-dark: #1f2937;
+    --text-light: #4b5563;
+    --bg-page: #f9fafb;
+    --border-color: #e5e7eb;
+}
+
+body {
+    background-color: var(--bg-page);
+    min-height: 100vh;
+    font-family: 'Plus Jakarta Sans', sans-serif, Arial, sans-serif;
+}
+
+/* =========================================
+   2. Main Layout & Structure
+   ========================================= */
+.booking-wrapper {
+    padding: 20px 0;
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.booking-top-nav {
+    padding: 0 20px 20px;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    background: var(--primary-light);
+    color: var(--primary-color);
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-back:hover {
+    background-color: #e0e7ff;
+}
+
+.btn-back svg {
+    margin-right: 8px;
+}
+
+/* --- Content Card (The Main Container) --- */
+.booking-content-card {
+    display: flex;
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    min-height: 700px;
+    border: 1px solid var(--border-color);
+}
+
+.booking-left {
+    flex: 1.5;
+    padding: 30px 40px;
+    border-right: 1px solid var(--border-color);
+}
+
+.booking-right {
+    flex: 1;
+    padding: 30px 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Section Header */
+.section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0 0 5px 0;
+}
+
+.section-header p {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    margin-bottom: 25px;
+}
+
+/* --- FIX START: Input Grid and Age Box Fix --- */
+.form-grid {
+    /* Adjusted grid to give the age input more visual space */
+    display: grid;
+    grid-template-columns: 3fr 1.5fr; 
+    gap: 25px; 
+    margin-bottom: 25px;
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+}
+
+.custom-field-container {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    z-index: 2; /* Ensure icon stays above select box */
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px 10px 10px 40px; 
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: var(--text-dark);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none; /* Remove default styling for select/number inputs */
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 1px var(--primary-color);
+}
+
+/* FIX: Specific styling for the Age input field to prevent overlap with spin controls */
+.input-group.age-input .input-field[type="number"] {
+    /* Push the input text away from the spin controls on the right */
+    padding-right: 35px; 
+    text-align: center; 
+    font-weight: 700;
+    /* Ensure default spin buttons are visible for functionality */
+    -webkit-appearance: textfield; 
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+/* FIX: Reset icon position for age input */
+.input-group.age-input .input-icon {
+    left: 10px;
+}
+/* --- FIX END --- */
+
+/* =========================================
+   3. Calendar Styles
+   ========================================= */
+.calendar-container {
+    margin-top: 20px;
+}
+
+.cal-header-modern {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.month-label {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.nav-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    color: var(--text-dark);
+}
+
+.nav-btn:hover {
+    background-color: #f3f4f6;
+}
+
+.cal-days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    padding-bottom: 10px;
+}
+
+.cal-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.day-cell {
+    padding: 10px 0;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.1s, transform 0.1s;
+    font-size: 0.95rem;
+    position: relative;
+    color: var(--text-dark);
+}
+
+.day-cell.dimmed {
+    color: #ccc;
+    cursor: default;
+}
+
+.day-cell:not(.dimmed):not(.past):not(.leave):hover {
+    background-color: var(--primary-light);
+    transform: scale(1.05);
+}
+
+.day-cell.selected {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(30, 58, 138, 0.2);
+}
+
+.day-cell.leave {
+    background-color: #fee2e2; 
+    color: var(--color-error);
+    cursor: not-allowed;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.day-cell.past {
+    color: #ccc;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.day-cell.available {
+    cursor: pointer;
+}
+
+.dot-today {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    width: 4px;
+    height: 4px;
+    background-color: white;
+    border-radius: 50%;
+}
+.day-cell.selected .dot-today { background-color: white; }
+.day-cell:not(.selected).available .dot-today { background-color: var(--primary-color); }
+
+
+.cal-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 25px;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.legend {
+    display: flex;
+    align-items: center;
+}
+
+.legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.legend .dot.green { background-color: var(--color-success); }
+.legend .dot.red { background-color: var(--color-error); }
+.legend .dot.gray { background-color: #ccc; }
+
+
+/* =========================================
+   4. Slot Selection Area
+   ========================================= */
+.slots-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.slots-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    margin: 0 0 5px 0;
+}
+
+.slots-date {
+    font-size: 1rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.slots-count {
+    font-size: 0.9rem;
+    color: var(--color-success);
+    font-weight: 700;
+}
+
+.slots-scroller {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.time-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.time-pill {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 10px 5px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.time-pill:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.time-pill.booked {
+    background-color: #f3f4f6;
+    color: var(--text-light);
+    border-color: #ccc;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* Empty States & Notifications */
+.empty-state {
+    text-align: center;
+    padding: 50px 0;
+    color: var(--text-light);
+}
+
+.empty-state .icon-xl {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.empty-state h4 {
+    color: var(--text-dark);
+    margin: 0 0 5px 0;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 30px 0;
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.notification-banner {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.notification-banner.success {
+    background-color: #d1fae5;
+    color: var(--color-success);
+    border: 1px solid #a7f3d0;
+}
+
+.notification-banner.error {
+    background-color: #fee2e2;
+    color: var(--color-error);
+    border: 1px solid #fecaca;
+}
+
+
+/* =========================================
+   5. Responsiveness
+   ========================================= */
+@media (max-width: 992px) {
+    .booking-content-card {
+        flex-direction: column;
+        min-height: auto;
+    }
+    .booking-left, .booking-right {
+        padding: 25px 20px;
+    }
+    .booking-left {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .form-grid {
+        /* On small screens, return to a single column */
+        grid-template-columns: 1fr;
+    }
+    .booking-right {
+        padding-top: 20px;
+    }
+    .slots-scroller {
+        padding-right: 0;
+        max-height: 400px;
+    }
+    .time-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .time-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    .booking-wrapper {
+        padding: 10px;
+    }
+}

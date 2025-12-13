@@ -1,0 +1,220 @@
+/* =========================================
+   1. Global Reset & Fonts
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --primary: #1e3a8a;       /* Deep Navy Blue (Authority) */
+  --primary-light: #eff6ff; /* Very Light Blue */
+  --text-dark: #1f2937;     /* Dark Gray (Font) */
+  --text-light: #4b5563;    /* Medium Gray */
+  --navbar-height: 80px;    /* IMPORTANT: Keep this matched */
+}
+
+/* STRICT NO SCROLLING */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; 
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================
+   2. Main Layout (Minimalist & Centered)
+   ========================================= */
+.main-container.no-image-mode {
+  height: calc(100vh - var(--navbar-height)); 
+  width: 100vw;
+  background-color: white;
+  display: flex;
+  justify-content: center; /* Center content block horizontally */
+  align-items: center; /* Center content block vertically */
+}
+
+.content-layer {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    /* We don't need a grid template anymore, just horizontal padding */
+    padding: 0 4vw; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Content Focus Block (Limits Width for Readability) --- */
+.content-center-focus {
+    width: 100%;
+    max-width: 800px; 
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Keeps elements spaced top/middle/bottom */
+    padding: 5rem 0; /* Add top/bottom padding for vertical spacing */
+    box-sizing: border-box;
+}
+
+/* =========================================
+   3. Content Blocks
+   ========================================= */
+
+/* Top Badge */
+.content-top-badge {
+    flex-grow: 0;
+    display: flex;
+    align-items: center;
+    padding: 6px 14px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 100px;
+    width: fit-content;
+    margin-bottom: 2rem;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+/* Middle Block: Main Text (Centered within its own area) */
+.content-middle-block {
+    flex-grow: 1; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vertical center */
+    padding-bottom: 3rem; /* Extra space above the bottom strip */
+}
+
+.hero-title {
+    font-size: 4rem; /* Larger font size due to no image */
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 1.5rem;
+    animation: slideUpFade 0.8s ease-out 0.2s backwards;
+}
+
+.text-highlight { 
+    color: var(--primary); 
+}
+
+.hero-description {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: var(--text-light);
+    max-width: 600px; 
+    margin-bottom: 3rem;
+    animation: slideUpFade 0.8s ease-out 0.4s backwards;
+}
+
+/* Buttons */
+.action-group {
+    display: flex;
+    gap: 1.5rem;
+    animation: slideUpFade 0.8s ease-out 0.6s backwards;
+}
+
+.btn-primary.minimal, .btn-secondary.minimal {
+    padding: 1rem 2.5rem; /* Larger padding for emphasis */
+    font-weight: 700;
+    border-radius: 12px;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary.minimal {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 10px 20px -8px rgba(30, 58, 138, 0.4);
+}
+
+.btn-primary.minimal:hover {
+    background: #1e3a8a;
+    transform: translateY(-2px);
+}
+
+.btn-secondary.minimal {
+    background: white;
+    color: var(--text-dark);
+    border: 2px solid #e5e7eb;
+}
+
+.btn-secondary.minimal:hover {
+    border-color: var(--text-dark);
+}
+
+
+/* Stat Strip (Bottom Footer) */
+.stat-strip.minimal {
+    flex-grow: 0;
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 2rem;
+    gap: 1rem;
+}
+
+.stat-item h6 {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+}
+
+.stat-item p {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+/* =========================================
+   4. Animations
+   ========================================= */
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(30, 58, 138, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(30, 58, 138, 0); }
+}
+
+/* Mobile Fallback: Enable scrolling and simpler stacking */
+@media (max-width: 1024px) {
+    .main-container { height: auto; padding-top: var(--navbar-height); }
+    .content-center-focus { height: auto; padding: 2rem 0; }
+    html, body { overflow-y: auto; }
+    
+    .hero-title { font-size: 3rem; }
+    .hero-description { font-size: 1rem; }
+    .action-group { flex-direction: column; gap: 1rem; }
+    .stat-strip.minimal { flex-direction: column; gap: 1rem; }
+    .stat-item p { font-size: 1.1rem; }
+}
