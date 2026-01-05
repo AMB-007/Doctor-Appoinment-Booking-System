@@ -56,14 +56,25 @@ DB_NAME=doctor_app
 
 ## Database Setup
 
-1. Create the database (name should match `DB_NAME`).
-2. Import schema and seed data from `server/setup.sql`:
+1. Ensure MySQL server is running and you have a user with privileges to create databases.
+
+2. Create the database (name should match `DB_NAME` in your `.env` file, e.g., `doctor_app`).
+
+3. Import the initial schema from `server/setup.sql`:
 
 ```bash
-mysql -u root -p doctor_app < server/setup.sql
+mysql -u [your_username] -p [your_database_name] < server/setup.sql
 ```
 
-Or run `server/update_schema_v2.js` (ensure env vars are set).
+Replace `[your_username]` with your MySQL username (e.g., root), and `[your_database_name]` with the database name from `DB_NAME`.
+
+This will create the necessary tables:
+- `users`: Stores patient, doctor, and admin accounts.
+- `appointments`: Manages appointment bookings.
+
+**Note:** The schema does not include seed data. You can create users (doctors and patients) via the app's signup page. For testing, sign up a few doctors and patients manually.
+
+If you have an existing database from a previous version, the `server/update_schema_v2.js` script can help update the schema, but it's designed for an older version and may not be needed.
 
 ## Server (API) — Run
 

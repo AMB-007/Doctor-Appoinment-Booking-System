@@ -17,7 +17,6 @@ const CheckIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="no
 const Avatar = ({ name }) => <div className="avatar">{name ? name.substring(0, 2).toUpperCase() : "DR"}</div>;
 const StatusBadge = ({ status }) => <span className={`status-badge ${(status||'').toLowerCase()}`}>{status}</span>;
 
-// --- SAFE DATE UTILITY ---
 const toDateStr = (date) => {
     if (!date) return null;
     const year = date.getFullYear();
@@ -33,6 +32,9 @@ export default function DoctorDashboard({ user, onLogout }) {
   const [appointments, setAppointments] = useState([]);
   const [activeView, setActiveView] = useState('dashboard');
   
+  // Filtering states
+  const [filterDate, setFilterDate] = useState(toDateStr(new Date()));
+
   // Multi-Leave State
   const [calDate, setCalDate] = useState(new Date()); 
   const [selectedLeaves, setSelectedLeaves] = useState([]); 
@@ -44,7 +46,6 @@ export default function DoctorDashboard({ user, onLogout }) {
 
   const doctorId = user?.id;
 
-  // 1. Initial Data Load
   useEffect(() => {
     if (!doctorId) return;
     fetchData();
@@ -69,52 +70,37 @@ export default function DoctorDashboard({ user, onLogout }) {
     } catch (e) { console.error(e); }
   };
 
-  // 3. Actions
   const handleStatusChange = async (id, status) => {
     try {
         await axios.put(`${API}/appointments/${id}`, { status });
-        // Instead of directly manipulating the array, we refresh the data source
         fetchData(); 
     } catch(err) { alert("Action failed"); }
   };
 
-  // --- Password Update Logic ---
   const handlePasswordUpdate = async (e) => {
       e.preventDefault();
       setPassMsg({ type: '', text: '' });
-
       if (passData.new !== passData.confirm) {
           setPassMsg({ type: 'error', text: "New passwords do not match." });
           return;
       }
-      if (passData.new.length < 6) {
-          setPassMsg({ type: 'error', text: "Password must be at least 6 characters." });
-          return;
-      }
-
       try {
           const res = await axios.put(`${API}/auth/password`, {
               userId: user.id,
               currentPassword: passData.current,
               newPassword: passData.new
           });
-          
           setPassMsg({ type: 'success', text: res.data.message || "Password updated successfully!" });
           setPassData({ current: '', new: '', confirm: '' });
       } catch (err) {
-          const errMsg = err.response?.data?.message || err.response?.data?.error || "Failed to update password. Check current password.";
-          setPassMsg({ type: 'error', text: errMsg });
+          setPassMsg({ type: 'error', text: "Failed to update password." });
       }
   };
 
-  // --- Multi-Select Calendar Logic ---
   const handleDateClick = (day) => {
       const clickedDate = new Date(calDate.getFullYear(), calDate.getMonth(), day, 12, 0, 0);
       const dateStr = toDateStr(clickedDate);
-      const todayStr = toDateStr(new Date());
-      
-      if (dateStr < todayStr) return; 
-
+      if (dateStr < toDateStr(new Date())) return; 
       if (selectedLeaves.includes(dateStr)) {
           setSelectedLeaves(selectedLeaves.filter(d => d !== dateStr));
       } else {
@@ -131,9 +117,7 @@ export default function DoctorDashboard({ user, onLogout }) {
           alert(`Leaves applied successfully!`);
           setSelectedLeaves([]);
           fetchLeaveStatus();
-      } catch (err) {
-          alert("Failed to update leaves.");
-      }
+      } catch (err) { alert("Failed to update leaves."); }
   };
 
   const handleClearAllLeaves = async () => {
@@ -141,28 +125,72 @@ export default function DoctorDashboard({ user, onLogout }) {
     try {
         await axios.put(`${API}/doctors/${doctorId}/leave`, { date: null, is_on_leave: false });
         fetchLeaveStatus();
-        alert("All leaves cleared.");
     } catch(err) { alert("Failed to clear leaves"); }
   };
 
+  // --- Filtering Logic for Dashboard ---
   const stats = useMemo(() => ({
     total: appointments.length,
     cancelled: appointments.filter(a => (a.status||'').toLowerCase() === 'cancelled').length,
     pending: appointments.filter(a => (a.status||'').toLowerCase() === 'pending')
   }), [appointments]);
 
+  const filteredAppointments = useMemo(() => {
+    // Filter by the date selected in the input
+    const dateFiltered = appointments.filter(a => a.date === filterDate);
+    
+    return {
+      upcoming: dateFiltered.filter(a => ['confirmed', 'pending'].includes(a.status?.toLowerCase())),
+      finished: dateFiltered.filter(a => ['completed'].includes(a.status?.toLowerCase()))
+    };
+  }, [appointments, filterDate]);
+
   const daysInMonth = getDaysInMonth(calDate);
   const startDay = getFirstDayOfMonth(calDate);
   const calendarDays = Array(startDay).fill(null).concat([...Array(daysInMonth).keys()].map(i => i + 1));
 
+  // Shared table component to keep code dry
+  const AppointmentTable = ({ data, title }) => (
+    <div className="recent-section">
+        <div className="section-title"><h3>{title}</h3></div>
+        <div className="table-wrapper">
+            <table className="doc-table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Age</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.length === 0 ? <tr><td colSpan="5" style={{textAlign:'center', padding:'20px'}}>No records for this date</td></tr> : 
+                    data.map(appt => (
+                        <tr key={appt.id}>
+                            <td><div className="patient-cell"><Avatar name={appt.patient_name} /><span>{appt.patient_name}</span></div></td>
+                            <td>{appt.age || 'N/A'}</td>
+                            <td><div className="date-cell"><span className="time">{appt.slot_time}</span></div></td>
+                            <td><StatusBadge status={appt.status} /></td>
+                            <td>
+                                {appt.status === 'Confirmed' && (
+                                    <button className="btn-mark-done" onClick={() => handleStatusChange(appt.id, 'Completed')}>
+                                        <CheckIcon /> Mark Done
+                                    </button>
+                                )}
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  );
+
   return (
     <div className="doc-layout">
-      {/* Sidebar */}
       <aside className="doc-sidebar">
-        <div className="sidebar-brand">
-            <div className="brand-logo">⚕️</div>
-            <h3>MedBook</h3>
-        </div>
+        <div className="sidebar-brand"><div className="brand-logo">⚕️</div><h3>MedBook</h3></div>
         <nav className="sidebar-menu">
             <button className={`menu-item ${activeView === 'dashboard' ? 'active' : ''}`} onClick={() => setActiveView('dashboard')}><HomeIcon /> <span>Dashboard</span></button>
             <button className={`menu-item ${activeView === 'requests' ? 'active' : ''}`} onClick={() => setActiveView('requests')}><BellIcon /> <span>Requests</span>{stats.pending.length > 0 && <span className="notification-badge">{stats.pending.length}</span>}</button>
@@ -178,60 +206,31 @@ export default function DoctorDashboard({ user, onLogout }) {
       <main className="doc-main">
         <header className="page-header">
             <h2>{activeView === 'dashboard' ? 'Dashboard Overview' : activeView === 'requests' ? 'Appointment Requests' : activeView === 'leaves' ? 'Leave Management' : 'Settings'}</h2>
-            <div className="header-date">{new Date().toDateString()}</div>
+            <div className="header-controls">
+                {activeView === 'dashboard' && (
+                    <div className="date-filter-wrapper">
+                        <label>View Date: </label>
+                        <input type="date" value={filterDate} onChange={(e) => setFilterDate(e.target.value)} className="date-picker-input" />
+                    </div>
+                )}
+                <div className="header-date">{new Date().toDateString()}</div>
+            </div>
         </header>
 
         <div className="content-area">
-            {/* VIEW: DASHBOARD */}
             {activeView === 'dashboard' && (
                 <div className="dashboard-view">
                     <div className="stats-container">
-                        <div className="stat-box purple"><div className="stat-icon">📅</div><div className="stat-info"><h4>Total Appointments</h4><h2>{stats.total}</h2></div></div>
+                        <div className="stat-box purple"><div className="stat-icon">📅</div><div className="stat-info"><h4>Total All Time</h4><h2>{stats.total}</h2></div></div>
                         <div className="stat-box orange"><div className="stat-icon">⏳</div><div className="stat-info"><h4>Pending Requests</h4><h2>{stats.pending.length}</h2></div></div>
-                        <div className="stat-box red"><div className="stat-icon">❌</div><div className="stat-info"><h4>Cancelled</h4><h2>{stats.cancelled}</h2></div></div>
+                        <div className="stat-box green"><div className="stat-info"><h4>Upcoming ({filterDate})</h4><h2>{filteredAppointments.upcoming.length}</h2></div></div>
                     </div>
-                    <div className="recent-section">
-                        <div className="section-title"><h3>All Appointments</h3></div>
-                        <div className="table-wrapper">
-                            <table className="doc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Patient</th>
-                                        <th>Age</th>
-                                        <th>Date & Time</th>
-                                        <th>Status</th>
-                                        <th>Action</th> {/* NEW: Action Column */}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {appointments.length === 0 ? <tr><td colSpan="5" style={{textAlign:'center', padding:'20px'}}>No appointments found</td></tr> : 
-                                    appointments.map(appt => (
-                                        <tr key={appt.id}>
-                                            <td><div className="patient-cell"><Avatar name={appt.patient_name} /><span>{appt.patient_name}</span></div></td>
-                                            <td>{appt.age || 'N/A'}</td>
-                                            <td><div className="date-cell"><span className="date">{appt.date}</span><span className="time">{appt.slot_time}</span></div></td>
-                                            <td><StatusBadge status={appt.status} /></td>
-                                            <td>
-                                                {/* Only show Mark Done button for Confirmed appointments */}
-                                                {appt.status === 'Confirmed' && (
-                                                    <button 
-                                                        className="btn-mark-done" 
-                                                        onClick={() => handleStatusChange(appt.id, 'Completed')}
-                                                    >
-                                                        <CheckIcon /> Mark Done
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+
+                    <AppointmentTable data={filteredAppointments.upcoming} title={`Upcoming Appointments - ${filterDate}`} />
+                    <AppointmentTable data={filteredAppointments.finished} title={`Finished/Completed - ${filterDate}`} />
                 </div>
             )}
 
-            {/* VIEW: REQUESTS */}
             {activeView === 'requests' && (
                 <div className="requests-view">
                     <div className="section-title"><h3>Incoming Requests</h3></div>
@@ -255,7 +254,6 @@ export default function DoctorDashboard({ user, onLogout }) {
                 </div>
             )}
 
-            {/* VIEW: LEAVES (MULTI-SELECT CALENDAR) */}
             {activeView === 'leaves' && (
                 <div className="leaves-view">
                     <div className="leave-content-wrapper">
@@ -265,28 +263,10 @@ export default function DoctorDashboard({ user, onLogout }) {
                                 <p><strong>Upcoming Confirmed Leaves:</strong></p>
                                 {confirmedLeaves.length > 0 ? (
                                     <div className="leaves-scroll-list">
-                                        {confirmedLeaves.sort().map(d => (
-                                            <span key={d} className="leave-tag">{d}</span>
-                                        ))}
+                                        {confirmedLeaves.sort().map(d => <span key={d} className="leave-tag">{d}</span>)}
                                     </div>
-                                ) : (
-                                    <p className="status-text-green">You have no upcoming leaves.</p>
-                                )}
-                                
-                                {confirmedLeaves.length > 0 && (
-                                    <button className="btn-text-red" onClick={handleClearAllLeaves} style={{marginTop: '20px'}}>
-                                        Clear All Leaves
-                                    </button>
-                                )}
-                            </div>
-                            <hr style={{margin: '20px 0', border:'none', borderTop:'1px solid #eee'}}/>
-                            <div className="instruction-text">
-                                <p><strong>How to Add Leaves:</strong></p>
-                                <ul>
-                                    <li>Click dates on the calendar to select them (<span style={{color:'var(--primary)'}}>Blue</span>).</li>
-                                    <li>Dates already booked are <span style={{color:'var(--danger)'}}>Red</span>.</li>
-                                    <li>Click "Apply Selected Leaves" to confirm.</li>
-                                </ul>
+                                ) : <p className="status-text-green">You have no upcoming leaves.</p>}
+                                {confirmedLeaves.length > 0 && <button className="btn-text-red" onClick={handleClearAllLeaves} style={{marginTop: '20px'}}>Clear All Leaves</button>}
                             </div>
                         </div>
 
@@ -302,25 +282,18 @@ export default function DoctorDashboard({ user, onLogout }) {
                             <div className="cal-grid-body">
                                 {calendarDays.map((day, i) => {
                                     if(!day) return <div key={i} className="day-cell empty"></div>;
-                                    
                                     const thisDate = new Date(calDate.getFullYear(), calDate.getMonth(), day, 12, 0, 0);
                                     const dateStr = toDateStr(thisDate);
-                                    
                                     const isSelected = selectedLeaves.includes(dateStr);
                                     const isConfirmedLeave = confirmedLeaves.includes(dateStr);
-                                    const todayStr = toDateStr(new Date());
-                                    const isPast = dateStr < todayStr;
+                                    const isPast = dateStr < toDateStr(new Date());
 
                                     let classes = "day-cell";
                                     if(isConfirmedLeave) classes += " confirmed-leave"; 
-                                    else if(isSelected) classes += " selected";        
+                                    else if(isSelected) classes += " selected";         
                                     else if(isPast) classes += " past";
 
-                                    return (
-                                        <div key={i} className={classes} onClick={() => handleDateClick(day)}>
-                                            {day}
-                                        </div>
-                                    )
+                                    return <div key={i} className={classes} onClick={() => handleDateClick(day)}>{day}</div>
                                 })}
                             </div>
                             <div className="cal-actions">
@@ -332,24 +305,14 @@ export default function DoctorDashboard({ user, onLogout }) {
                 </div>
             )}
 
-            {/* VIEW: SETTINGS */}
             {activeView === 'settings' && (
                 <div className="settings-view">
                     <div className="settings-card">
                         <h3>Change Password</h3>
                         <form onSubmit={handlePasswordUpdate} className="settings-form">
-                            <div className="form-group">
-                                <label>Current Password</label>
-                                <input type="password" value={passData.current} onChange={(e)=>setPassData({...passData, current:e.target.value})} required/>
-                            </div>
-                            <div className="form-group">
-                                <label>New Password</label>
-                                <input type="password" value={passData.new} onChange={(e)=>setPassData({...passData, new:e.target.value})} required/>
-                            </div>
-                            <div className="form-group">
-                                <label>Confirm New Password</label>
-                                <input type="password" value={passData.confirm} onChange={(e)=>setPassData({...passData, confirm:e.target.value})} required/>
-                            </div>
+                            <div className="form-group"><label>Current Password</label><input type="password" value={passData.current} onChange={(e)=>setPassData({...passData, current:e.target.value})} required/></div>
+                            <div className="form-group"><label>New Password</label><input type="password" value={passData.new} onChange={(e)=>setPassData({...passData, new:e.target.value})} required/></div>
+                            <div className="form-group"><label>Confirm New Password</label><input type="password" value={passData.confirm} onChange={(e)=>setPassData({...passData, confirm:e.target.value})} required/></div>
                             {passMsg.text && <div className={`msg-banner ${passMsg.type}`}>{passMsg.text}</div>}
                             <button type="submit" className="btn-primary">Update Password</button>
                         </form>

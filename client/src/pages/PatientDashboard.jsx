@@ -196,7 +196,7 @@ export default function PatientDashboardV2() {
               <h3>Profile</h3>
               <p><b>Name:</b> {user.name}</p>
               <p><b>Email:</b> {user.email}</p>
-              <p className="muted">Profile editing handled elsewhere.</p>
+              <p className="muted"></p>
             </div>
           )}
         </main>

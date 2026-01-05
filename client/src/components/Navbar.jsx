@@ -53,19 +53,7 @@ export const Navbar = () => {
                 <div className="nav-actions">
                     {user ? (
                         <div className="user-menu">
-                            {/* Standard Link: Dashboard */}
-                            <Link to={getDashboardPath()} className={`nav-link ${location.pathname.includes('dashboard') ? 'active' : ''}`}>
-                                Dashboard
-                            </Link>
-
-                            {/* Patient Only Link: Booking */}
-                            {user.role === 'patient' && (
-                                <Link to="/booking" className={`nav-link ${location.pathname === '/booking' ? 'active' : ''}`}>
-                                    Book Appointment
-                                </Link>
-                            )}
-
-                            {/* User Info Group */}
+                          {/* User Info Group */}
                             <div className="user-info-group">
                                 <div className="user-divider"></div>
                                 
