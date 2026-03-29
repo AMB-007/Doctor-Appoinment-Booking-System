@@ -1,135 +1,184 @@
-# Doctor App
+# Doctor Appointment Booking System
 
-## Description
+## Overview
 
-Full-stack appointment booking app for doctors and patients. React frontend in `client/` and Node/Express backend in `server/` with a MySQL database. Provides signup/login, doctor listing, booking, leave management, and basic dashboards for doctors and patients.
+This is a full-stack doctor appointment booking app with a React frontend in `client/`, a Node/Express backend in `server/`, and a MySQL database. Patients can sign up, browse doctors, and book appointments. Doctors can manage leave dates and update appointment status.
 
 ## Features
 
-- User authentication (signup/login)
-- Doctor listing and specializations
-- Book appointments with slot checking and double-book prevention
-- Doctor leave management (per-date leaves)
-- Appointment status updates (Pending/Confirmed/Cancelled)
-- User profile updates and password change
+- User signup and login
+- Doctor listing with specialization
+- Appointment booking with duplicate-slot protection
+- Doctor leave management
+- Appointment status updates
+- Profile update and password change flows
 
 ## Tech Stack
 
-- Frontend: React (client/), Tailwind CSS
+- Frontend: React, Vite, Tailwind CSS
 - Backend: Node.js, Express
-- Database: MySQL (mysql2)
-- Auth & utils: bcryptjs, dotenv, CORS
+- Database: MySQL with `mysql2`
+- Utilities: `dotenv`, `bcryptjs`, `cors`
 
-## Project Structure (key paths)
+## Project Structure
 
-- `client/` — React app (pages, components, assets)
-- `server/` — Express API, DB scripts
-  - `server/server.js` — main API server
-  - `server/db.js` — MySQL connection (uses `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`)
-  - `server/setup.sql` — initial schema/data
-  - `server/update_schema_v2.js` — schema update helper
-- Root `package.json` and per-package manifests in `client/` and `server/` as needed
+- `client/` - frontend app
+- `server/` - backend API and database schema
+- `server/server.js` - main Express server
+- `server/setup.sql` - fresh database schema for first-time setup
+- `server/db.js` - MySQL connection pool helper
+- `package.json` - root workspace scripts
 
 ## Prerequisites
 
-- Node.js >= 14
-- npm or yarn
-- MySQL server (or MariaDB)
+- A recent version of Node.js with npm
+- MySQL Server or MariaDB
+
+## Install Dependencies
+
+Run this once from the project root:
+
+```bash
+npm install
+```
+
+This installs the workspace dependencies for both `client` and `server`.
 
 ## Environment Variables
 
-Create a `.env` file in `server/` with:
+Create `server/.env` with the following values:
 
-- `DB_HOST` (e.g., localhost)
-- `DB_USER` (MySQL username)
-- `DB_PASSWORD` (MySQL password)
-- `DB_NAME` (database name, e.g., doctor_app)
-
-Example `.env`:
-
-```
+```env
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=yourpassword
+DB_PASSWORD=your_mysql_password
 DB_NAME=doctor_app
 ```
 
-## Database Setup
+For a smooth first run, keep `DB_NAME=doctor_app` because `server/setup.sql` uses that database name.
 
-1. Ensure MySQL server is running and you have a user with privileges to create databases.
+## Database Setup For First Run
 
-2. Create the database (name should match `DB_NAME` in your `.env` file, e.g., `doctor_app`).
+### Option 1: Import the provided SQL file
 
-3. Import the initial schema from `server/setup.sql`:
-
-```bash
-mysql -u [your_username] -p [your_database_name] < server/setup.sql
-```
-
-Replace `[your_username]` with your MySQL username (e.g., root), and `[your_database_name]` with the database name from `DB_NAME`.
-
-This will create the necessary tables:
-- `users`: Stores patient, doctor, and admin accounts.
-- `appointments`: Manages appointment bookings.
-
-**Note:** The schema does not include seed data. You can create users (doctors and patients) via the app's signup page. For testing, sign up a few doctors and patients manually.
-
-If you have an existing database from a previous version, the `server/update_schema_v2.js` script can help update the schema, but it's designed for an older version and may not be needed.
-
-## Server (API) — Run
-
-1. Install dependencies:
+Start MySQL from the project root:
 
 ```bash
-cd server
-npm install
+mysql -u root -p
 ```
 
-2. Start server:
+Then run this inside the MySQL prompt:
+
+```sql
+SOURCE server/setup.sql;
+```
+
+If you are using Git Bash or Command Prompt, this one-line import also works:
 
 ```bash
-node server.js
+mysql -u root -p < server/setup.sql
 ```
 
-The server listens on port 5000 by default.
+### Option 2: Run the SQL manually
 
-## Client (Frontend) — Run
+If you want to create the schema by hand, run the following queries in MySQL:
 
-1. Install dependencies:
+```sql
+CREATE DATABASE IF NOT EXISTS doctor_app;
+USE doctor_app;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('patient', 'doctor', 'admin') DEFAULT 'patient',
+    specialization VARCHAR(255) DEFAULT 'General Physician',
+    next_leave_date DATE DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS appointments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    doctor_id INT NOT NULL,
+    doctor_name VARCHAR(255),
+    patient_id INT NOT NULL,
+    patient_name VARCHAR(255),
+    date VARCHAR(20) NOT NULL,
+    slot_time VARCHAR(20) NOT NULL,
+    status VARCHAR(50) DEFAULT 'Pending',
+    token_number INT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS doctor_leaves (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    doctor_id INT NOT NULL,
+    leave_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_doctor_leave (doctor_id, leave_date),
+    FOREIGN KEY (doctor_id) REFERENCES users(id) ON DELETE CASCADE
+);
+```
+
+### Verify the database
+
+After setup, you can verify the schema with:
+
+```sql
+USE doctor_app;
+SHOW TABLES;
+DESCRIBE users;
+DESCRIBE appointments;
+DESCRIBE doctor_leaves;
+```
+
+Expected tables:
+
+- `users`
+- `appointments`
+- `doctor_leaves`
+
+There is no seed data by default. Create doctor and patient accounts through the app so passwords are stored correctly with bcrypt.
+
+## Run The Backend
+
+From the project root:
 
 ```bash
-cd client
-npm install
+npm run server
 ```
 
-2. Start dev server:
+The backend starts on `http://localhost:5000`.
+
+## Run The Frontend
+
+Open a second terminal in the project root and run:
 
 ```bash
 npm run dev
 ```
 
-The client expects the API at `http://localhost:5000` by default; adjust as needed.
+The frontend starts with Vite and calls the backend at `http://localhost:5000`.
 
 ## Useful Scripts
 
-- `server/server.js` — starts the API server
-- `server/update_schema_v2.js` — DB schema helper
-- `client/` contains standard React dev scripts (`dev`, `build`, `start`)
+- `npm run server` - start the backend
+- `npm run dev` - start the frontend
+- `npm run build` - build the frontend
 
-## Notes & Tips
+## API Examples
 
-- `server/db.js` uses `mysql2` connection pool and exports `.promise()` for async/await usage.
-- Example API endpoints:
-  - GET `/api/doctors`
-  - GET `/api/doctors/:id/leaves`
-  - POST `/api/appointments`
-  - PUT `/api/appointments/:id`
-  - POST `/api/signup` and `/api/login`
-- The server enforces UTC timezone in DB config to avoid timezone shifting.
+- `GET /api/doctors`
+- `GET /api/doctors/:id/leaves`
+- `PUT /api/doctors/:id/leave`
+- `POST /api/appointments`
+- `PUT /api/appointments/:id`
+- `POST /api/signup`
+- `POST /api/login`
 
-## Contributing
+## Notes
 
-- Fork, create a feature branch, add tests, and open a PR.
-- Update `server/setup.sql` for schema changes and provide migrations if needed.
-
-
+- The backend uses UTC in the MySQL connection config to reduce timezone issues.
+- `server/update_schema_v2.js` is an older helper and should not be used for a fresh install.
