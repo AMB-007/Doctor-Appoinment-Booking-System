@@ -134,4 +134,4 @@ The client expects the API at `http://localhost:5000` by default; adjust as need
 
 ## License
 
-Add your chosen license here (e.g., MIT).
+
