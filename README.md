@@ -132,6 +132,4 @@ The client expects the API at `http://localhost:5000` by default; adjust as need
 - Fork, create a feature branch, add tests, and open a PR.
 - Update `server/setup.sql` for schema changes and provide migrations if needed.
 
-## License
-
 
